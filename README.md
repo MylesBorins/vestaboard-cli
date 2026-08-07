@@ -1,31 +1,73 @@
-# Vestaboard Local API
+# Vestaboard
 
-Vestaboard IP: `vestaboard` (192.168.50.46)
-Port: 7000
-Device: **Vestaboard Note** (3 rows × 15 columns)
+Send messages to a Vestaboard Note (3×15) from the command line or as a library.
 
-## Endpoints
-| Method | Path | Auth |
-|--------|------|------|
-| POST | `/local-api/enablement` | Enablement token |
-| POST | `/local-api/message` | API Key |
-| GET | `/local-api/message` | API Key |
+## Quick Start
 
-## CLI Tool
 ```bash
-node vestaboard.js "Hello"              # Send text (uses @vestaboard/vbml)
-node vestaboard.js --vbml file.json     # Parse a VBML file
-node vestaboard.js -r                   # Read current message
-node vestaboard.js -c                   # Clear board
-node vestaboard.js -l                   # List char codes
-node vestaboard.js --charcode 62        # Show heart
-
-# Options
---rows 3    Grid rows (Note: 3, Flagship: 6)
---cols 15   Grid cols (Note: 15, Flagship: 22)
---animate wave|drift|curtain|row|diagonal|random
+vb "Hello World"              # Send text
+vb "HI" --anim wave           # With animation
+vb --quiet "Goodnight"        # Late-night slow mode
+vb -r                         # Read current message
+vb -c                         # Clear board
+vb -l                         # List character codes
+vb --vbml file.json           # Parse a VBML file
+vb --charcode 62              # Show character by code
+vb --noRead                   # Skip auto-read after sending
 ```
 
-## VBML
-Uses the official `@vestaboard/vbml` package for local parsing.
-See test-vbml.json, props-example.json for examples.
+## Library Usage
+
+```js
+import { Vestaboard, printGrid, ANIMS, sleep } from 'vestaboard';
+
+const vb = new Vestaboard();
+
+// Parse text to grid
+const grid = vb.parseText('Hello');
+printGrid(grid);
+
+// Send to board
+await vb.send(grid, ANIMS.wave);
+
+// Read current message
+const current = await vb.read();
+printGrid(current);
+
+// Parse VBML
+const vbmlGrid = vb.parseVBML({
+  components: [{ template: 'Hello World', style: { justify: 'center' } }]
+});
+```
+
+## Config
+
+`.env` file (gitignored):
+
+```
+VB_API_KEY=your_key_here
+VESTABOARD_HOST=vestaboard
+VESTABOARD_PORT=7000
+```
+
+## Structure
+
+```
+lib/vestaboard.js   # Core library (Vestaboard class, animations)
+vestaboard.js       # CLI wrapper (yargs arg parsing)
+vb                  # Shell wrapper script
+docs/               # API docs, char codes, networking, VBML
+```
+
+## Animations
+
+| Animation | Speed | Description |
+|-----------|-------|-------------|
+| `wave` | 0.8s | Column sweep top-to-bottom |
+| `drift` | 0.8s | Reverse column sweep |
+| `curtain` | 0.8s | Edges to center |
+| `row` | 0.8s | Row by row |
+| `diagonal` | 0.8s | Corner to corner |
+| `random` | 0.8s | Random cells |
+
+`--quiet` doubles the delay to 1.5s per step.
