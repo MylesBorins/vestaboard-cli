@@ -3,7 +3,7 @@
   "name": "vestaboard",
   "version": "0.1.0",
   "bin": {
-    "vb": "./index.js"
+    "vestaboard": "./index.js"
   },
   "exports": {
     ".": "./lib/vestaboard.js"
