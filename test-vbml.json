@@ -1,0 +1,12 @@
+{
+  "style": { "height": 3, "width": 15 },
+  "components": [
+    {
+      "template": "Hello World!",
+      "style": {
+        "justify": "center",
+        "align": "center"
+      }
+    }
+  ]
+}

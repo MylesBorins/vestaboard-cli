@@ -1,0 +1,15 @@
+{
+  "style": { "height": 3, "width": 15 },
+  "props": {
+    "time": "07:35"
+  },
+  "components": [
+    {
+      "template": "It's {{time}}",
+      "style": {
+        "justify": "center",
+        "align": "center"
+      }
+    }
+  ]
+}

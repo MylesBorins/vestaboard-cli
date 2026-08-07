@@ -1,0 +1,17 @@
+{
+  "style": { "height": 3, "width": 15 },
+  "components": [
+    {
+      "template": "MacBook Pro",
+      "style": { "height": 1, "width": 15, "justify": "center", "align": "top" }
+    },
+    {
+      "template": "14c  2.2",
+      "style": { "height": 1, "width": 15, "justify": "center", "align": "top" }
+    },
+    {
+      "template": "UPT: 25d 21h",
+      "style": { "height": 1, "width": 15, "justify": "center", "align": "top" }
+    }
+  ]
+}
