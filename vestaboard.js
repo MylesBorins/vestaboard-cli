@@ -13,24 +13,17 @@
  *   vb --quiet                    # Late-night mode (slow anims)
  */
 
-import dotenv from 'dotenv';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import fs from 'node:fs';
-import { Vestaboard, ANIMS, QUIET_ANIMS, printGrid, listCodes, sleep } from './lib/vestaboard.js';
-
-dotenv.config();
-
-if (!process.env.VB_API_KEY) {
-  console.error('❌ Missing VB_API_KEY in .env');
-  process.exit(1);
-}
+import { Vestaboard, ANIMS, QUIET_ANIMS, printGrid, listCodes, sleep, setup } from './lib/vestaboard.js';
 
 const rawArgs = hideBin(process.argv);
 
 // Split flags from text args — handle flag-value pairs together
 const FLAG_VALUE_ARGS = new Set(['--rows','--cols','--anim','--delay','--charcode','--vbml']);
-const FLAG_BOOL_ARGS = new Set(['--quiet','--noRead','-r','-c','-l','-h','--help','--read','--clear','--list']);
+const FLAG_BOOL_ARGS = new Set(['--quiet','--noRead','-r','-c','-l','-h','--help','--read','--clear','--list','--setup','--force','--force-setup']);
+const ANIM_OPTIONS = new Set(Object.keys(ANIMS));
 const textArgs = [];
 const flagArgs = [];
 for (let i = 0; i < rawArgs.length; i++) {
@@ -39,6 +32,9 @@ for (let i = 0; i < rawArgs.length; i++) {
     i++;
   } else if (FLAG_BOOL_ARGS.has(rawArgs[i])) {
     flagArgs.push(rawArgs[i]);
+  } else if (ANIM_OPTIONS.has(rawArgs[i])) {
+    // Single-word animation at end of args: vb "HI" drift
+    flagArgs.push('--anim', rawArgs[i]);
   } else {
     textArgs.push(rawArgs[i]);
   }
@@ -58,8 +54,22 @@ const argv = yargs(flagArgs)
 
 argv.text = textArgs;
 
-const vb = new Vestaboard();
+async function main() {
+  const vb = new Vestaboard();
 const flags = argv;
+
+if (!vb.apiKey && !rawArgs.includes('--setup')) {
+  console.error('❌ Not configured. Run: vb setup\n');
+  console.error('This will prompt for your enablement token, enable the Local API,');
+  console.error('and store everything in your macOS keychain.\n');
+  process.exit(1);
+}
+
+// ─── Setup command ───────────────────────────────────────────
+if (rawArgs.includes('--setup') || rawArgs.includes('-s')) {
+  await setup({ force: rawArgs.includes('--force') || rawArgs.includes('--force-setup') });
+  process.exit(0);
+}
 
 // ─── Special flags ───────────────────────────────────────────
 if (rawArgs.includes('-r') || rawArgs.includes('--read')) {
@@ -130,3 +140,6 @@ await vb.send(grid, anim);
 console.log(`  ✓ Done${anim ? ` (${anim.strategy})` : ''}\n`);
 await sleep(flags.delay);
 if (!flags.noRead) { await vb.read().then(printGrid); }
+}
+
+main();
